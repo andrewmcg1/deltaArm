@@ -27,7 +27,7 @@ int at_goal(point_t* location, point_t* goal)
 
 int main()
 {
-    point_t delta_location, drone_location, goal_location;
+    point_t delta_location, drone_location, goal_location, offset;
     unsigned int enter_standy = 0;
     unsigned int leave_standby = 0;
     static int keep_running = 1;
@@ -49,6 +49,16 @@ int main()
     if(!delta_check_battery(LOW_VOLTAGE))
     {
         delta_standby();
+        usleep(500000);
+        delta_data_packet.x = NAN;
+        while(isnan(delta_data_packet.x)) 
+        if(serial_receive(SERIAL_PORT))
+        {
+            offset.x = (delta_data_packet.x - drone_data_packet.x) * 1000;
+            offset.y = (delta_data_packet.y - drone_data_packet.y) * 1000;       ///< Convert from meters to millimeters
+            offset.z = (delta_data_packet.z - drone_data_packet.z) * 1000 + 300; // Maybe multiply by -1
+        }
+
     }
     
 
@@ -71,7 +81,7 @@ int main()
             enter_standy = 0;
         }
 
-        if(serial_receive(SERIAL_PORT))
+        if(!serial_receive(SERIAL_PORT))
         {
             drone_location.x = drone_data_packet.x;
             drone_location.y = drone_data_packet.y;
@@ -82,9 +92,12 @@ int main()
                     if(!enter_standy)
                         delta_open_claw();
 
-                    delta_location.x = delta_data_packet.x * 1000;
-                    delta_location.y = delta_data_packet.y * 1000;   ///< Convert from meters to millimeters
-                    delta_location.z = delta_data_packet.z * 1000;
+                    delta_location.x = (delta_data_packet.x - drone_data_packet.x) * 1000 - offset.x;
+                    delta_location.y = (delta_data_packet.y - drone_data_packet.y) * 1000 - offset.y;   ///< Convert from meters to millimeters
+                    delta_location.z = (delta_data_packet.z - drone_data_packet.z) * 1000 - offset.z;   // Maybe multiply by -1
+                    //delta_location.x *= -1;
+                    //delta_location.y *= -1;
+                    //delta_location.z *= -1;
                     delta_move(&delta_location);
                     break;
                 default:
