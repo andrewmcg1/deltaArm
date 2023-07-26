@@ -1,0 +1,6 @@
+/.vscode
+/pseudoCode.pseudo
+/serial_com.c
+/serial_com.h
+/xbee_receive.c
+/xbee_receive.h
