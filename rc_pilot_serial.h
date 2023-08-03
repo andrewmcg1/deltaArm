@@ -1,10 +1,6 @@
 #ifndef RC_PILOT_SERIAL_H_
 #define RC_PILOT_SERIAL_H_
 
-
-#define DRONE_ID 1
-#define DELTA_ID 2
-
 /**
  * @brief List of possible states for the state machine. States can be added as needed for new
  * functionality.
@@ -26,23 +22,13 @@ typedef enum sm_states
  */
 typedef struct __attribute__((__packed__))
 {
-    uint32_t id;         ///< Unique id for the rigid body being described
-    float x;               ///< x-position in the Optitrack frame
-    float y;               ///< y-position in the Optitrack frame
-    float z;               ///< z-position in the Optitrack frame
-    float qx;              ///< qx of quaternion
-    float qy;              ///< qy of quaternion
-    float qz;              ///< qz of quaternion
-    float qw;              ///< qw of quaternion
-    int8_t trackingValid;  // (bool) of whether or not tracking was valid (0 or 1)
-    int16_t state;          ///< state
+    int8_t state;          ///< state
+    int8_t claw;           ///< claw open or close (1 close, 0 open)
     float x_d;             ///< Desired X Position
     float y_d;             ///< Desired Y Position
     float z_d;             ///< Desired Z Position
 } data_packet_t;
 
-data_packet_t delta_data_packet;
-data_packet_t drone_data_packet;
 data_packet_t data_packet;
 
 

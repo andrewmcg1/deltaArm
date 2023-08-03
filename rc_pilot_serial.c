@@ -5,8 +5,8 @@
 
 #include "rc_pilot_serial.h"
 
-#define DATA_START_BYTE_1 0x81
-#define DATA_START_BYTE_2 0xA1
+#define DATA_START_BYTE_1 0x7E
+#define DATA_START_BYTE_2 0x7F
 
 enum _ParseState
 {
@@ -16,7 +16,6 @@ enum _ParseState
     CHECKSUM,
     END
 };
-typedef enum _ParseState ParseState;
 
 
 int serial_init(int bus, int baudrate, float timeout)
@@ -28,49 +27,6 @@ int serial_init(int bus, int baudrate, float timeout)
 
 }
 
-void __read_byte(int bus)
-{
-    static __uint8_t buf[256];
-    static __uint8_t current_byte;
-    static ParseState parseState = START_BYTE_1;
-    static unsigned int index = 0;
-
-    rc_uart_read_bytes(bus, &current_byte, 1);
-
-    switch (parseState)
-    {
-        case START_BYTE_1:
-            if (current_byte == DATA_START_BYTE_1)
-                parseState = START_BYTE_2;
-            break;
-
-        case START_BYTE_2:
-            if (current_byte == DATA_START_BYTE_2)
-            {
-                parseState = DATA;
-            }
-            else
-                parseState = START_BYTE_1;  // resets state machine
-            break;
-
-        case DATA:
-            buf[index] = current_byte;
-            index++;
-            if (index == sizeof(data_packet_t) - 1)
-            {
-                parseState = START_BYTE_1;
-                index = 0;
-
-                data_packet = *(data_packet_t*)buf;
-                if(data_packet.id == DRONE_ID)
-                    drone_data_packet = data_packet;
-                else if(data_packet.id == DELTA_ID)
-                    delta_data_packet = data_packet;
-            }
-
-            break;
-    }
-}
 
 void __read_all(int bus)
 {
@@ -120,10 +76,6 @@ void __read_all(int bus)
                 if(checksum_calculated == checksum_received)
                 {
                     data_packet = *(data_packet_t*)buf;
-                    if(data_packet.id == DRONE_ID)
-                        drone_data_packet = data_packet;
-                    if(data_packet.id == DELTA_ID)
-                        delta_data_packet = data_packet;
 
                     parseState = END;
                 }

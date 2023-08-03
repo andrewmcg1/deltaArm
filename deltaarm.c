@@ -152,7 +152,7 @@ int delta_close_claw()
 
 int delta_check_battery(float low_voltage)
 {
-    return (rc_adc_dc_jack() > low_voltage) ? -1 : 0;
+    return (rc_adc_dc_jack() > low_voltage) ? 1 : 0;
 }
 
 int delta_init(point_t* location)
@@ -183,6 +183,10 @@ int delta_move(point_t* location)
         //printf("\nERROR: Invalid arm location: %f, %f, %f\n", location->x, location->y, location->z);
         return -1;
     }
+    if(location.claw)
+        delta_close_claw();
+    else
+        delta_open_claw();
 
     delta_update_angles(location);
     return 0;

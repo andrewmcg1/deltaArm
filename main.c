@@ -49,22 +49,14 @@ int main()
     if(!delta_check_battery(LOW_VOLTAGE))
     {
         delta_standby();
-        usleep(500000);
-        delta_data_packet.x = NAN;
-        while(isnan(delta_data_packet.x)) 
-        if(serial_receive(SERIAL_PORT))
-        {
-            offset.x = (delta_data_packet.x - drone_data_packet.x) * 1000;
-            offset.y = (delta_data_packet.y - drone_data_packet.y) * 1000;       ///< Convert from meters to millimeters
-            offset.z = (delta_data_packet.z - drone_data_packet.z) * 1000 + 300; // Maybe multiply by -1
-        }
+
 
     }
     
 
     while(keep_running)
     {
-        if(delta_check_battery(LOW_VOLTAGE))
+        if(!delta_check_battery(LOW_VOLTAGE))
         {
             printf("ERROR: Delta arm battery too low\n");
             break;
@@ -83,21 +75,16 @@ int main()
 
         if(!serial_receive(SERIAL_PORT))
         {
-            drone_location.x = drone_data_packet.x;
-            drone_location.y = drone_data_packet.y;
-            drone_location.z = drone_data_packet.z;
             switch(drone_data_packet.state)
             {
                 case SM_LOITER:
                     if(!enter_standy)
                         delta_open_claw();
 
-                    delta_location.x = (delta_data_packet.x - drone_data_packet.x) * 1000 - offset.x;
-                    delta_location.y = (delta_data_packet.y - drone_data_packet.y) * 1000 - offset.y;   ///< Convert from meters to millimeters
-                    delta_location.z = (delta_data_packet.z - drone_data_packet.z) * 1000 - offset.z;   // Maybe multiply by -1
-                    //delta_location.x *= -1;
-                    //delta_location.y *= -1;
-                    //delta_location.z *= -1;
+                    delta_location.x = data_packet.x_d;
+                    delta_location.y = data_packet.y_d;
+                    delta_location.z = data_packet.z_d;
+
                     delta_move(&delta_location);
                     break;
                 default:
@@ -105,6 +92,8 @@ int main()
                     delta_standby();
                     break;
             }
+
+
             /*
             if(!at_goal(&delta_location, &goal_location))
             {
@@ -114,8 +103,7 @@ int main()
             */
         }
 
-        printf("\rID: %1d | State: %d | X: %.4f | Y: %.4f | Z: %.4f | ", drone_data_packet.id, drone_data_packet.state, drone_location.x, drone_location.y, drone_location.z);
-        printf("ID: %1d | X: %.4f | Y: %.4f | Z: %.4f         ", delta_data_packet.id, delta_location.x, delta_location.y, delta_location.z);
+        printf("\rDelta Location: %3.3f | %3.3f | %3.3f | %3.3d", delta_location.x, delta_location.y, delta_location.z, delta_location.claw);
         //printf(" | Bytes: %4d           ", rc_uart_bytes_available(SERIAL_PORT));
 
         fflush(stdout);
@@ -123,7 +111,7 @@ int main()
 
     }
 
-    //rc_uart_close(SERIAL_BUS);
+    rc_uart_close(SERIAL_PORT);
 
     return 0;
 }

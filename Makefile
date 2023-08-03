@@ -6,15 +6,16 @@ includeDir = ./include/
 srcDir = ./src/
 
 DEPS= rc_pilot_serial.h deltaarm.h servo.h
-OBJ= main.o rc_pilot_serial.o deltaarm.o servo.o
+OBJ= rc_pilot_serial.o deltaarm.o servo.o main.o 
 
 %.o: %.c $(DEPS)
-	@echo "Compiling $@..."
+	@$(CC) -c -o $@ $< $(CFLAGS)
+	@echo "Compiled $@"
 
 
 deltaArm: $(OBJ)
-	@echo "Compiling deltaArm..."
-	@echo "Compilation done!"
+	@$(CC) -o $@ $^ $(CFLAGS)
+	@echo "Compiled Binary: $@"
 
 clean:
-	rm -f
+	@rm -rvf *.o deltaArm
