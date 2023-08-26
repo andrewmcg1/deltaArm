@@ -1,20 +1,7 @@
 #ifndef RC_PILOT_SERIAL_H_
 #define RC_PILOT_SERIAL_H_
 
-/**
- * @brief List of possible states for the state machine. States can be added as needed for new
- * functionality.
- */
-typedef enum sm_states
-{
-    STANDBY = 0,
-    TAKEOFF = 1,
-    GUIDED = 2,
-    LANDING = 3,
-    SM_LOITER = 4,
-    NAILING = 5,
-    RETURN = 6,
-} sm_states;
+#include <delta_defs.h>
 
 /**
  * @brief List of all data that is sent to over serial from the flight controller.

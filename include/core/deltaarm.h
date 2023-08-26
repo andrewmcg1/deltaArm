@@ -4,6 +4,8 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <delta_defs.h>
+
 #include "servo.h"
 
 typedef struct {

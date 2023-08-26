@@ -1,0 +1,161 @@
+{
+	"name": "DELTA_ARM",
+
+	"warnings_en": true,
+
+	"orientation": "ORIENTATION_X_FORWARD",
+
+	"enable_mpu_magnetometer": true,
+
+    "standby_x": 0.0,
+    "standby_y": 0.0,
+    "standby_z": -300.0,
+
+	"enable_mocap_dropout_emergency_standby": false,
+	"mocap_dropout_timeout_ms": 300.0,
+
+	"printf_arm": true,
+	"printf_battery": true,
+	"printf_position": false,
+	"printf_setpoint": false,
+	"printf_angles": false,
+	"printf_mode": false,
+	"printf_xbee": false,
+	"printf_xbee_velocities": false,
+	"printf_tracking": true,
+
+	"enable_logging": true,
+	"log_only_while_armed": false,
+	"log_state": false,
+	"log_xbee": false,
+	"log_position_setpoint": false,
+    "log_angles": false,
+	"log_flight_mode": false,
+	"log_benchmark": false,
+
+	"enable_wp_linear_interpolation": false,
+	"wp_folder": "/home/debian/waypoints/",
+	"wp_takeoff_filename": "takeoff_waypoints.cfg",
+	"wp_guided_filename": "guided_waypoints.cfg",
+	"wp_landing_filename": "landing_waypoints.cfg",
+
+	"rc_pilot_serial_port": "/dev/ttyS5",
+	"rc_pilot_packet_version": 3,
+
+	"realsense_payload_serial_port": "/dev/ttyS1",
+
+	"roll_rate_controller_pd": {
+		"TF_or_PID": "PD",
+		"kp": 0.1,
+		"kd": 0.01,
+		"crossover_freq_rad_per_sec": 62.83
+	},
+	"roll_rate_controller_i": {
+		"TF_or_PID": "I",
+		"ki": 0.02,
+		"imax": 0.05
+	},
+
+
+	"pitch_rate_controller_pd": {
+		"TF_or_PID": "PD",
+		"kp": 0.1,
+		"kd": 0.01,
+		"crossover_freq_rad_per_sec": 62.83
+	},
+	"pitch_rate_controller_i": {
+		"TF_or_PID": "I",
+		"ki": 0.02,
+		"imax": 0.05
+	},
+
+
+	"yaw_rate_controller_pd": {
+		"TF_or_PID": "PD",
+		"kp": 0.2,
+		"kd": 0.01,
+		"crossover_freq_rad_per_sec": 62.83
+	},
+	"yaw_rate_controller_i": {
+		"TF_or_PID": "I",
+		"ki": 0.02,
+		"imax": 0.05
+	},
+
+
+	"roll_controller_pd": {
+		"TF_or_PID": "PD",
+		"kp": 8.0,
+		"kd": 0.0,
+		"crossover_freq_rad_per_sec": 62.83
+	},
+	"roll_controller_i": {
+		"TF_or_PID": "I",
+		"ki": 0.0,
+		"imax": 0.05
+	},
+
+
+	"pitch_controller": {
+		"TF_or_PID": "P",
+		"kp": 8.0
+	},
+
+
+	"yaw_controller": {
+		"TF_or_PID": "P",
+		"kp": 4.0
+	},
+
+
+	"altitude_rate_controller_pd": {
+		"TF_or_PID": "PD",
+		"kp": 0.15,
+		"kd": 0.03,
+		"crossover_freq_rad_per_sec": 62.83
+	},
+	"altitude_rate_controller_i": {
+		"TF_or_PID": "I",
+		"ki": 0.05,
+		"imax": 0.1
+	},
+
+
+	"altitude_controller_pd": {
+		"TF_or_PID": "PD",
+		"kp": 5.0,
+		"kd": 0.02,
+		"crossover_freq_rad_per_sec": 62.83
+	},
+	"altitude_controller_i": {
+		"TF_or_PID": "I",
+		"ki": 0.15,
+		"imax": 0.1
+	},
+
+
+	"horiz_vel_ctrl_pd": {
+		"TF_or_PID": "PD",
+		"kp": 2,
+		"kd": 0.1,
+		"crossover_freq_rad_per_sec": 62.83
+	},
+	"horiz_vel_ctrl_i": {
+		"TF_or_PID": "I",
+		"ki": 0.02,
+		"imax": 0.05
+	},
+
+
+	"horiz_pos_ctrl_pd": {
+		"TF_or_PID": "PD",
+		"kp": 1,
+		"kd": 0.0,
+		"crossover_freq_rad_per_sec": 62.83
+	},
+	"horiz_pos_ctrl_i": {
+		"TF_or_PID": "I",
+		"ki": 0.0,
+		"imax": 0.01
+	}
+}

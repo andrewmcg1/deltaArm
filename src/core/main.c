@@ -75,7 +75,7 @@ int main()
 
         if(!serial_receive(SERIAL_PORT))
         {
-            switch(drone_data_packet.state)
+            switch(data_packet.state)
             {
                 case SM_LOITER:
                     if(!enter_standy)
@@ -115,35 +115,3 @@ int main()
 
     return 0;
 }
-/*
-int test_main()
-{
-    if(serial_init(SERIAL_BUS, SERIAL_BAUD, SERIAL_TIMEOUT_S))      ///< Initialize serial port
-    {
-        printf("ERROR: Serial failed to initialize\n");
-        exit(1);
-    }
-
-
-    printf("\n");
-
-    while(1)
-    {
-        serial_receive(SERIAL_BUS);
-
-        printf("\r");
-
-        printf("drone x: %f    ", drone_data_packet.x);
-        printf("drone y: %f    ", drone_data_packet.y);
-        printf("drone z: %f    ", drone_data_packet.z);
-
-        printf("delta x: %f    ", delta_data_packet.x);
-        printf("delta y: %f    ", delta_data_packet.y);
-        printf("delta z: %f    ", delta_data_packet.z);
-
-        fflush(stdout);  
-    }
-
-    return 0;
-}
-*/

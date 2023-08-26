@@ -8,14 +8,6 @@
 #define CONTROLLER_SPEED 5
 
 
-
-// Robot geometry (assumes identical links) 
-// --> watch these globals - may want to add identifiers (e.g., "delta_f", "delta_e"...)
-const double f = 130;     // base reference triangle side length
-const double e = 50;     // end effector reference triangle side length
-const double rf = 314.325;    // Top link length
-const double re = 377.825;    // Bottom link length
-
 // trigonometric constants
 const double pi = 3.141592653;    // PI
 const double sqrt3 = 1.732051;    // sqrt(3)
@@ -34,23 +26,23 @@ int delta_calcForward(point_t* location)
     double theta2 = location->theta2;
     double theta3 = location->theta3;
 
-    double t = (f-e)*tan30/2;
-    double dtr = pi/(double)180.0;
+    double t = (BASE_SIDE_LEN - END_EFF_SIDE_LEN) * tan30 / 2;
+    double dtr = pi / (double)180.0;
     
     theta1 *= dtr;
     theta2 *= dtr;
     theta3 *= dtr;
     
-    double y1 = -(t + rf*cos(theta1));
-    double z1 = -rf*sin(theta1);
+    double y1 = -(t + TOP_LINK_LEN * cos(theta1));
+    double z1 = -TOP_LINK_LEN * sin(theta1);
     
-    double y2 = (t + rf*cos(theta2))*sin30;
-    double x2 = y2*tan60;
-    double z2 = -rf*sin(theta2);
+    double y2 = (t + TOP_LINK_LEN * cos(theta2))*sin30;
+    double x2 = y2 * tan60;
+    double z2 = -TOP_LINK_LEN * sin(theta2);
     
-    double y3 = (t + rf*cos(theta3))*sin30;
-    double x3 = -y3*tan60;
-    double z3 = -rf*sin(theta3);
+    double y3 = (t + TOP_LINK_LEN * cos(theta3))*sin30;
+    double x3 = -y3 * tan60;
+    double z3 = -TOP_LINK_LEN * sin(theta3);
     
     double dnm = (y2-y1)*x3-(y3-y1)*x2;
     
@@ -69,7 +61,7 @@ int delta_calcForward(point_t* location)
     // a*z^2 + b*z + c = 0
     double a = a1*a1 + a2*a2 + dnm*dnm;
     double b = 2*(a1*b1 + a2*(b2-y1*dnm) - z1*dnm*dnm);
-    double c = (b2-y1*dnm)*(b2-y1*dnm) + b1*b1 + dnm*dnm*(z1*z1 - re*re);
+    double c = (b2-y1*dnm)*(b2-y1*dnm) + b1*b1 + dnm*dnm*(z1*z1 - BOT_LINK_LEN*BOT_LINK_LEN);
     
     // discriminant
     double d = b*b - (double)4.0*a*c;
@@ -85,15 +77,15 @@ int delta_calcForward(point_t* location)
     // helper functions, calculates angle theta1 (for YZ-plane)
 int delta_calcAngleYZ(double x0, double y0, double z0, double *theta)
 {
-    double y1 = -0.5 * 0.57735 * f; // f/2 * tg 30
-    y0 -= 0.5 * 0.57735    * e;    // shift center to edge
+    double y1 = -0.5 * 0.57735 * BASE_SIDE_LEN; // BASE_SIDE_LEN/2 * tg 30
+    y0 -= 0.5 * 0.57735 * END_EFF_SIDE_LEN;    // shift center to edge
 
     // z = a + b*y
-    double a = (x0*x0 + y0*y0 + z0*z0 +rf*rf - re*re - y1*y1)/(2*z0);
+    double a = (x0*x0 + y0*y0 + z0*z0 + TOP_LINK_LEN*TOP_LINK_LEN - BOT_LINK_LEN*BOT_LINK_LEN - y1*y1)/(2*z0);
     double b = (y1-y0)/z0;
 
     // discriminant
-    double d = -(a+b*y1)*(a+b*y1)+rf*(b*b*rf+rf); 
+    double d = -(a+b*y1)*(a+b*y1)+ TOP_LINK_LEN *(b*b * TOP_LINK_LEN + TOP_LINK_LEN ); 
     if (d < 0) 
         return -1; // non-existing point
 
@@ -183,7 +175,7 @@ int delta_move(point_t* location)
         //printf("\nERROR: Invalid arm location: %f, %f, %f\n", location->x, location->y, location->z);
         return -1;
     }
-    if(location.claw)
+    if(location->claw)
         delta_close_claw();
     else
         delta_open_claw();
@@ -248,10 +240,10 @@ int delta_main () {
     rc_adc_init();
     
 
-    tcgetattr( STDIN_FILENO, &oldt);
+    tcgetattr(STDIN_FILENO, &oldt);
     newt = oldt;
     newt.c_lflag &= ~(ICANON);          
-    tcsetattr( STDIN_FILENO, TCSANOW, &newt);
+    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
     location.x = 0;
     location.y = 0;
