@@ -9,9 +9,21 @@
 #include "servo.h"
 
 typedef struct {
-    double x;
-    double y;
-    double z;
+    double X;
+    double Y;
+    double Z;
+
+    double X_dot;
+    double Y_dot;
+    double Z_dot;
+
+    double X_ddot;
+    double Y_ddot;
+    double Z_ddot;
+
+    double X_dot_ff;
+    double Y_dot_ff;
+    double Z_dot_ff;
 
     double theta1;
     double theta2;
@@ -19,6 +31,9 @@ typedef struct {
 
     int claw;
 } point_t;
+
+extern point_t delta_location;
+extern point_t setpoint;
 
 
 // Delta arm function declarations

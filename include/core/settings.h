@@ -12,12 +12,7 @@
 
 #include <rc/math/filter.h>
 #include <rc/mpu.h>
-
-#include <flight_mode.h>
-#include <input_manager.h>
-#include <mix.h>
-#include <rc_pilot_defs.h>
-#include <thrust_map.h>
+#include <delta_defs.h>
 
  /**
   * Configuration settings read from the json settings file and passed to most
