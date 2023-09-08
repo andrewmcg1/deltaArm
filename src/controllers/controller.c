@@ -86,18 +86,20 @@ static void __run_Z_controller()
                    + setpoint.Z_dot_ff;
     rc_saturate_double(&setpoint.Z_dot, -MAX_Z_VELOCITY, MAX_Z_VELOCITY);
 
-    
-    if (user_input.flight_mode != TEST_BENCH_DIRECT_Z_ACC)
-    {
-        // 2) Velocity -> Acceleration
-        setpoint.Z_ddot = rc_filter_march(&D_Zdot_pd, setpoint.Z_dot - state_estimate.Z_dot)
-                        + rc_filter_march(&D_Zdot_i,  setpoint.Z_dot - state_estimate.Z_dot);
-        rc_saturate_double(&setpoint.Z_ddot, -MAX_Z_ACCELERATION, MAX_Z_ACCELERATION);
-    }
+    // 2) Velocity -> Acceleration
+    setpoint.Z_ddot = rc_filter_march(&D_Zdot_pd, setpoint.Z_dot - state_estimate.Z_dot)
+                    + rc_filter_march(&D_Zdot_i,  setpoint.Z_dot - state_estimate.Z_dot);
+    rc_saturate_double(&setpoint.Z_ddot, -MAX_Z_ACCELERATION, MAX_Z_ACCELERATION);
 
+
+// TODO: delta arm doesnt operate on throttle so this code is unnecessary. 
+// However because the quadcopter moves from acceleration and the delta arm moves on position
+// I am unsure how to implement a velocity and acceleration controller
+/*
     // 3) Acceleration -> Throttle
     setpoint.Z_throttle = settings.hover_throttle + setpoint.Z_ddot;
     setpoint.Z_throttle = setpoint.Z_throttle / (cos(state_estimate.roll) * cos(state_estimate.pitch));
+*/
 }
 
 static void __run_XY_controller()
