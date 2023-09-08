@@ -30,6 +30,7 @@ static void __xyz_init(void)
     rc_filter_duplicate(&D_Ydot_pd, settings.horiz_vel_ctrl_pd);
     rc_filter_duplicate(&D_Ydot_i,  settings.horiz_vel_ctrl_i);
 
+    // look into altitude rate controller
     rc_filter_duplicate(&D_Zdot_pd, settings.altitude_rate_controller_pd);
     rc_filter_duplicate(&D_Zdot_i,  settings.altitude_rate_controller_i);
    
@@ -39,17 +40,20 @@ static void __xyz_init(void)
     rc_filter_duplicate(&D_Y_pd, settings.horiz_pos_ctrl_pd);
     rc_filter_duplicate(&D_Y_i, settings.horiz_pos_ctrl_i);
 
+    // look into altitude rate controller
     rc_filter_duplicate(&D_Z_pd, settings.altitude_controller_pd);
     rc_filter_duplicate(&D_Z_i,  settings.altitude_controller_i);
 }
 
 static void __zero_out_feedforward_terms()
 {
+    // Remove rpy and throttle feedforward terms
     setpoint.roll_dot_ff = 0;
     setpoint.pitch_dot_ff = 0;
     setpoint.yaw_dot_ff = 0;
     setpoint.roll_ff = 0;
     setpoint.pitch_ff = 0;
+
     setpoint.Z_dot_ff = 0;
     setpoint.X_dot_ff = 0; 
     setpoint.Y_dot_ff = 0; 
@@ -66,6 +70,8 @@ static void __assign_setpoints_and_enable_loops()
 
     // 2) Assign Setpoints
     //TODO: Add in setpoint assignment
+
+    // Mostly unnecessary for delta arm
 
     setpoint.en_rpy_rate_ctrl = 0;
     setpoint.en_rpy_ctrl = 0;
@@ -95,6 +101,7 @@ static void __run_Z_controller()
 // TODO: delta arm doesnt operate on throttle so this code is unnecessary. 
 // However because the quadcopter moves from acceleration and the delta arm moves on position
 // I am unsure how to implement a velocity and acceleration controller
+
 /*
     // 3) Acceleration -> Throttle
     setpoint.Z_throttle = settings.hover_throttle + setpoint.Z_ddot;
@@ -122,6 +129,10 @@ static void __run_XY_controller()
     rc_saturate_double(&setpoint.X_ddot, -MAX_XY_ACCELERATION, MAX_XY_ACCELERATION);
     rc_saturate_double(&setpoint.Y_ddot, -MAX_XY_ACCELERATION, MAX_XY_ACCELERATION);
     
+
+    // Delta arm does not use roll or pitch so this code is unnecessary
+
+    /*
     // 3) Acceleration -> Lean Angles
     setpoint.roll = ((-sin(state_estimate.continuous_yaw) * setpoint.X_ddot 
                       +cos(state_estimate.continuous_yaw) * setpoint.Y_ddot)
@@ -133,6 +144,8 @@ static void __run_XY_controller()
                     + setpoint.pitch_ff;
     rc_saturate_double(&setpoint.roll, -MAX_ROLL_SETPOINT, MAX_ROLL_SETPOINT);
     rc_saturate_double(&setpoint.pitch, -MAX_PITCH_SETPOINT, MAX_PITCH_SETPOINT);
+    */
+
 }
 
 static void __run_controller(double* u, double* mot)
@@ -188,10 +201,13 @@ int controller_reset()
     rc_filter_reset(&D_Z_pd);
     rc_filter_reset(&D_Z_i);
 
+// code unnecessary for delta arm
+/*
     // prefill filters with zero error (only those with D terms)
     rc_filter_prefill_inputs(&D_roll_rate_pd, 0);
     rc_filter_prefill_inputs(&D_pitch_rate_pd, 0);
     rc_filter_prefill_inputs(&D_yaw_rate_pd, 0);
+*/
 
     rc_filter_prefill_inputs(&D_Xdot_pd, 0);
     rc_filter_prefill_inputs(&D_Ydot_pd, 0);
