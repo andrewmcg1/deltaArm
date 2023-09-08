@@ -83,6 +83,8 @@ static void __assign_setpoints_and_enable_loops()
 
 }
 
+
+// look at the following code again to fix mistakes from changes
 #ifndef OFFBOARD_TEST
 static void __run_Z_controller()
 {
