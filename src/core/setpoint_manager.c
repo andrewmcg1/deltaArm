@@ -16,11 +16,8 @@
 #include <delta_defs.h>
 #include <setpoint_manager.h>
 #include <settings.h>
-
-
 #include <controller.h>
-#include <rc/math.h>
-#include <settings.h>
+#include <state_estimator.h>
 
 
 

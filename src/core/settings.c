@@ -13,7 +13,7 @@
 #include <json-c/json.h>
 #include <rc/math/filter.h>
 
-#include <rc_pilot_defs.h>
+#include <delta_defs.h>
 #include <settings.h>
 
  // json object respresentation of the whole settings file
@@ -144,76 +144,6 @@ static int was_load_successful = 0;
 ////////////////////////////////////////////////////////////////////////////////
 /// functions for parsing enums
 ////////////////////////////////////////////////////////////////////////////////
-
-/**
- * @brief      pulls rotor layout out of json object into settings struct
- *
- * @return     0 on success, -1 on failure
- */
-static int __parse_layout(void)
-{
-    struct json_object* tmp = NULL;
-    char* tmp_str = NULL;
-    if (json_object_object_get_ex(jobj, "layout", &tmp) == 0)
-    {
-        fprintf(stderr, "ERROR: can't find layout in settings file\n");
-        return -1;
-    }
-    if (json_object_is_type(tmp, json_type_string) == 0)
-    {
-        fprintf(stderr, "ERROR: layout should be a string\n");
-        return -1;
-    }
-    tmp_str = (char*)json_object_get_string(tmp);
-    if (strcmp(tmp_str, "LAYOUT_6DOF_ROTORBITS") == 0)
-    {
-        settings.num_rotors = 6;
-        settings.layout = LAYOUT_6DOF_ROTORBITS;
-        settings.dof = 6;
-    }
-    else if (strcmp(tmp_str, "LAYOUT_4X") == 0)
-    {
-        settings.num_rotors = 4;
-        settings.layout = LAYOUT_4X;
-        settings.dof = 4;
-    }
-    else if (strcmp(tmp_str, "LAYOUT_4X2") == 0)
-    {
-        settings.num_rotors = 4;
-        settings.layout = LAYOUT_4X2;
-        settings.dof = 4;
-    }
-    else if (strcmp(tmp_str, "LAYOUT_4PLUS") == 0)
-    {
-        settings.num_rotors = 4;
-        settings.layout = LAYOUT_4PLUS;
-        settings.dof = 4;
-    }
-    else if (strcmp(tmp_str, "LAYOUT_6X") == 0)
-    {
-        settings.num_rotors = 6;
-        settings.layout = LAYOUT_6X;
-        settings.dof = 4;
-    }
-    else if (strcmp(tmp_str, "LAYOUT_6X2") == 0)
-    {
-        settings.num_rotors = 6;
-        settings.layout = LAYOUT_6X2;
-        settings.dof = 4;
-    }
-    else if (strcmp(tmp_str, "LAYOUT_8X") == 0)
-    {
-        settings.num_rotors = 8;
-        settings.layout = LAYOUT_8X;
-        settings.dof = 4;
-    }
-    else
-    {
-        fprintf(stderr, "ERROR: invalid layout string\n");
-        return -1;
-    }
-    return 0;
-}
 
 /**
  * @ brief     parses a json_object and sets up a new controller
@@ -527,13 +457,13 @@ int settings_load_from_file(const char* path)
     // EMERGENCY LANDING SETTINGS
     PARSE_BOOL(enable_mocap_dropout_emergency_standby)
     PARSE_DOUBLE_MIN_MAX(mocap_dropout_timeout_ms, 0, 10000)
-    if (settings.enable_mocap_dropout_emergency_land)
+    if (settings.enable_mocap_dropout_emergency_standby)
     {
-        printf("Mocap dropout emergency landing ENABLED.\tDropout timeout: %0.1lfms.\tThrottle: %0.3lf\n",
-            settings.mocap_dropout_timeout_ms, settings.dropout_z_throttle);
+        printf("Mocap dropout emergency landing ENABLED.\tDropout timeout: %0.1lfms.\n",
+            settings.mocap_dropout_timeout_ms);
     }
 #ifdef DEBUG
-    fprintf(stderr, "enable_mocap_dropout_emergency_land: %d\n", settings.enable_mocap_dropout_emergency_land);
+    fprintf(stderr, "enable_mocap_dropout_emergency_stadby: %d\n", settings.enable_mocap_dropout_emergency_standby);
     fprintf(stderr, "mocap_dropout_timeout_ms: %lf\n", settings.mocap_dropout_timeout_ms);
 #endif
     printf("---\n"); // Just a visual break between above settings and the ones below
@@ -562,7 +492,6 @@ int settings_load_from_file(const char* path)
     PARSE_BOOL(log_benchmark)
 
     // WAYPOINT FILES
-    PARSE_BOOL(enable_wp_linear_interpolation)
     PARSE_STRING(wp_folder)
     PARSE_STRING(wp_takeoff_filename)
     PARSE_STRING(wp_guided_filename)

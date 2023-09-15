@@ -1,6 +1,8 @@
 
 #include "deltaarm.h"
 
+#include <setpoint_manager.h>
+
 #include <termios.h>            //termios, TCSANOW, ECHO, ICANON
 #include <unistd.h>             //STDIN_FILENO
 #include <rc/adc.h>
@@ -20,7 +22,7 @@ const double tan30 = 0.57735;     // 1/sqrt(3)
 
 // forward kinematics: (theta1, theta2, theta3) -> (x0, y0, z0)
 // returned status: 0=OK, -1=non-existing position
-int delta_calcForward(point_t* location) 
+int delta_calcForward(setpoint_t* location) 
 {
     double theta1 = location->theta1;
     double theta2 = location->theta2;
@@ -67,9 +69,9 @@ int delta_calcForward(point_t* location)
     double d = b*b - (double)4.0*a*c;
     if (d < 0) return -1; // non-existing point
     
-    location->z = -(double)0.5*(b+sqrt(d))/a;
-    location->x = (a1*(location->z) + b1)/dnm;
-    location->y = (a2*(location->z) + b2)/dnm;
+    location->Z = -(double)0.5*(b+sqrt(d))/a;
+    location->X = (a1*(location->Z) + b1)/dnm;
+    location->Y = (a2*(location->Z) + b2)/dnm;
     return 0;
 }
     
@@ -97,18 +99,18 @@ int delta_calcAngleYZ(double x0, double y0, double z0, double *theta)
  
 // inverse kinematics: (x0, y0, z0) -> (theta1, theta2, theta3)
 // returned status: 0=OK, -1=non-existing position
-int delta_calcInverse(point_t* location)
+int delta_calcInverse(setpoint_t* location)
 {
     location->theta1 = location->theta2 = location->theta3 = 0;
-    int status = delta_calcAngleYZ(location->x, location->y, location->z, &location->theta1);
+    int status = delta_calcAngleYZ(location->X, location->Y, location->Z, &location->theta1);
     if (status == 0) 
-        status = delta_calcAngleYZ(location->x*cos120 + location->y*sin120, location->y*cos120-location->x*sin120, location->z, &location->theta2);  // rotate coords to +120 deg
+        status = delta_calcAngleYZ(location->X*cos120 + location->Y*sin120, location->Y*cos120-location->X*sin120, location->Z, &location->theta2);  // rotate coords to +120 deg
     if (status == 0) 
-        status = delta_calcAngleYZ(location->x*cos120 - location->y*sin120, location->y*cos120+location->x*sin120, location->z, &location->theta3);  // rotate coords to -120 deg
+        status = delta_calcAngleYZ(location->X*cos120 - location->Y*sin120, location->Y*cos120+location->X*sin120, location->Z, &location->theta3);  // rotate coords to -120 deg
     return status;
 }
 
-int delta_validAngles(point_t* location)
+int delta_validAngles(setpoint_t* location)
 {
     if(fabs(location->theta1-MAX_ANGLE) < MAX_ANGLE && fabs(location->theta2-MAX_ANGLE) < MAX_ANGLE && fabs(location->theta3-MAX_ANGLE) < MAX_ANGLE)
         return 0;
@@ -118,7 +120,7 @@ int delta_validAngles(point_t* location)
     }
 }
 
-void delta_update_angles(point_t* location)
+void delta_update_angles(setpoint_t* location)
 {
     if(fabs(location->theta1-MAX_ANGLE) < MAX_ANGLE && fabs(location->theta2-MAX_ANGLE) < MAX_ANGLE && fabs(location->theta3-MAX_ANGLE) < MAX_ANGLE)
     {
@@ -147,7 +149,7 @@ int delta_check_battery(float low_voltage)
     return (rc_adc_dc_jack() > low_voltage) ? 1 : 0;
 }
 
-int delta_init(point_t* location)
+int delta_init(setpoint_t* location)
 {
     if(rc_adc_init())
     {
@@ -157,9 +159,9 @@ int delta_init(point_t* location)
     if(servos_init((int[]) {1, 2, 3, 4}, (int[]) {1, 1, 1, 10}, 4))
         return -1;
 
-    location->x = 0;
-    location->y = 0;
-    location->z = -300;
+    location->X = 0;
+    location->Y = 0;
+    location->Z = -300;
     location->claw = 0;
     delta_calcInverse(location);
     delta_update_angles(location);
@@ -168,7 +170,7 @@ int delta_init(point_t* location)
     return 0;
 }
 
-int delta_move(point_t* location)
+int delta_move(setpoint_t* location)
 {
     if(delta_calcInverse(location) || delta_validAngles(location))
     {
@@ -187,10 +189,10 @@ int delta_move(point_t* location)
 
 int delta_standby()
 {
-    point_t location;
-    location.x = 0;
-    location.y = 0;
-    location.z = -300;
+    setpoint_t location;
+    location.X = 0;
+    location.Y = 0;
+    location.Z = -300;
 
     delta_calcInverse(&location);
     delta_update_angles(&location);
@@ -199,17 +201,23 @@ int delta_standby()
     return 0;
 }
 
-int delta_grab(point_t* location)
+/**
+ * @brief NOT FULLY IMPLEMENTED
+ * 
+ * @param location 
+ * @return int 
+ */
+int delta_grab(setpoint_t* location)
 {
     delta_open_claw();
-    location->z -= 50;
-    if(delta_move(location));
+    location->Z -= 50;
+    if(delta_move(location))
     {
         printf("ERROR: Unable to grab\n");
         return -1;
     }
     delta_close_claw();
-    location->z += 50;
+    location->Z += 50;
     delta_move(location);
 
     return 0;
@@ -228,9 +236,10 @@ void __handler(int sig)
     exit(0);
 }
 
+/*
 int delta_main () {
     int c;
-    point_t location;
+    setpoint_t location;
 
     int stat;
 
@@ -245,9 +254,9 @@ int delta_main () {
     newt.c_lflag &= ~(ICANON);          
     tcsetattr(STDIN_FILENO, TCSANOW, &newt);
 
-    location.x = 0;
-    location.y = 0;
-    location.z = -300;
+    location.X = 0;
+    location.Y = 0;
+    location.Z = -300;
     location.claw = 0;
     delta_calcInverse(&location);
     delta_update_angles(&location);
@@ -338,3 +347,4 @@ int delta_main () {
 
     return 0;
 }
+*/

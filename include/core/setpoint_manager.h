@@ -25,6 +25,7 @@
 #define __SETPOINT_MANAGER__
 
 #include <delta_defs.h>
+#include <stdint.h>
 #include <stdbool.h>
 
  /**
@@ -78,14 +79,13 @@ typedef struct setpoint_t
 
     ///< @}
 
-    /** @name Attitude setpoint */
+    /** @name Servo setpoint */
     ///< @{
-    int en_rpy_ctrl;          ///< enable the roll pitch yaw controllers
-    double roll;              ///< roll angle (positive tip right) (rad)
-    double pitch;             ///< pitch angle (positive tip back) (rad)
-    double yaw;               ///< glabal yaw angle, positive left
-    double roll_ff;           ///< feedforward roll angle (rad)
-    double pitch_ff;          ///< feedforward pitch angle (rad)
+    int en_servo_ctrl;          ///< enable the roll pitch yaw controllers
+    double theta1;             ///< normalized servo command for servo 1
+    double theta2;             ///< normalized servo command for servo 2
+    double theta3;             ///< normalized servo command for servo 3
+    double claw;             ///< normalized servo command for claw servo
     ///< @}
 
     /** @name Acceleration setpoint */

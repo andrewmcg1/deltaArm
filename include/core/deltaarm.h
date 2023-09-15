@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <delta_defs.h>
+#include <setpoint_manager.h>
 
 #include "servo.h"
 
@@ -32,21 +33,19 @@ typedef struct {
     int claw;
 } point_t;
 
-extern point_t delta_location;
-extern point_t setpoint;
 
 
 // Delta arm function declarations
 int delta_init();
-int delta_calcForward(point_t* location);
+int delta_calcForward(setpoint_t* location);
 int delta_calcAngleYZ(double x0, double y0, double z0, double *theta);
-int delta_calcInverse(point_t* location);
-void delta_update_angles(point_t* location);
+int delta_calcInverse(setpoint_t* location);
+void delta_update_angles(setpoint_t* location);
 int delta_standby();
 int delta_open_claw();
 int delta_close_claw();
-int delta_grab(point_t* location);
-int delta_move(point_t* location);
+int delta_grab(setpoint_t* location);
+int delta_move(setpoint_t* location);
 int delta_check_battery(float voltage);
 
 int delta_main();

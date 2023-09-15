@@ -39,11 +39,11 @@ main() {
 	RC_PILOT_DIR=$SCRIPT_DIR/..
 
 	# Define the directory on the BeagleBone where 'rc_pilot_a2sys' will be transfered to
-	BBB_DEST=$DEST:/home/debian/rc_pilot_a2sys/
+	BBB_DEST=$DEST:/home/debian/deltaArm/
 	TMP_FILE=/tmp/include_files
 
 	# Folders and files to transfer to the beaglebone
-	INCLUDE_FILES='include/ src/ Makefile settings/ tests/'
+	INCLUDE_FILES='include/ src/ Makefile settings/'
 
 	# Populates tmp_file with all of the files to send to the beaglebone
 	# (needed by the --include-from rsync flag)
